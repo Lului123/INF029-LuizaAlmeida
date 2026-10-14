@@ -10,10 +10,10 @@
 //  O aluno deve preencher seus dados abaixo, e implementar as questões do trabalho
 
 //  ----- Dados do Aluno -----
-//  Nome:
-//  email:
-//  Matrícula:
-//  Semestre:
+//  Nome: luiza almeida
+//  email: luiza.allmeida2006@gmailcom
+//  Matrícula: 20261160009
+//  Semestre: 2
 
 //  Copyright © 2016 Renato Novais. All rights reserved.
 // Última atualização: 07/05/2021 - 19/08/2016 - 17/10/2025
@@ -91,17 +91,42 @@ int teste(int a)
  */
 int q1(char data[])
 {
-  int datavalida = 1;
+    int i, barras = 0;
+    DataQuebrada dq;
 
-  //quebrar a string data em strings sDia, sMes, sAno
+    for (i = 0; data[i] != '\0'; i++) {
+        if (data[i] == '/')
+            barras++;
+        else if (data[i] < '0' || data[i] > '9')
+            return 0;
+    }
 
+    if (barras != 2)
+        return 0;
 
-  //printf("%s\n", data);
+    dq = quebraData(data);
+    if (dq.valido == 0)
+        return 0;
 
-  if (datavalida)
-      return 1;
-  else
-      return 0;
+    if (dq.iMes < 1 || dq.iMes > 12)
+        return 0;
+
+    if (dq.iDia < 1)
+        return 0;
+
+    if (dq.iMes == 2) {
+        if ((dq.iAno % 4 == 0 && dq.iAno % 100 != 0) || dq.iAno % 400 == 0) {
+            if (dq.iDia > 29) return 0;
+        } else {
+            if (dq.iDia > 28) return 0;
+        }
+    } else if (dq.iMes == 4 || dq.iMes == 6 || dq.iMes == 9 || dq.iMes == 11) {
+        if (dq.iDia > 30) return 0;
+    } else {
+        if (dq.iDia > 31) return 0;
+    }
+
+    return 1;
 }
 
 
@@ -122,28 +147,67 @@ int q1(char data[])
  */
 DiasMesesAnos q2(char datainicial[], char datafinal[])
 {
-
-    //calcule os dados e armazene nas três variáveis a seguir
+    DataQuebrada inicio, fim;
     DiasMesesAnos dma;
+    int diasMes, anoInicio, anoFim;
 
-    if (q1(datainicial) == 0){
-      dma.retorno = 2;
-      return dma;
-    }else if (q1(datafinal) == 0){
-      dma.retorno = 3;
-      return dma;
-    }else{
-      //verifique se a data final não é menor que a data inicial
-      
-      //calcule a distancia entre as datas
-
-
-      //se tudo der certo
-      dma.retorno = 1;
-      return dma;
-      
+    if (q1(datainicial) == 0) {
+        dma.retorno = 2;
+        return dma;
     }
-    
+    if (q1(datafinal) == 0) {
+        dma.retorno = 3;
+        return dma;
+    }
+
+    inicio = quebraData(datainicial);
+    fim = quebraData(datafinal);
+
+    anoInicio = inicio.iAno;
+    anoFim = fim.iAno;
+
+    if (anoInicio > anoFim ||
+        (anoInicio == anoFim && inicio.iMes > fim.iMes) ||
+        (anoInicio == anoFim && inicio.iMes == fim.iMes && inicio.iDia > fim.iDia)) {
+        dma.retorno = 4;
+        return dma;
+    }
+
+    dma.qtdAnos = fim.iAno - inicio.iAno;
+    dma.qtdMeses = fim.iMes - inicio.iMes;
+    dma.qtdDias = fim.iDia - inicio.iDia;
+
+    if (dma.qtdDias < 0) {
+        int mesAnterior = fim.iMes - 1;
+        int anoAnterior = fim.iAno;
+
+        if (mesAnterior == 0) {
+            mesAnterior = 12;
+            anoAnterior--;
+        }
+
+        if (mesAnterior == 2) {
+            if ((anoAnterior % 4 == 0 && anoAnterior % 100 != 0) || anoAnterior % 400 == 0)
+                diasMes = 29;
+            else
+                diasMes = 28;
+        } else if (mesAnterior == 4 || mesAnterior == 6 || mesAnterior == 9 || mesAnterior == 11) {
+            diasMes = 30;
+        } else {
+            diasMes = 31;
+        }
+
+        dma.qtdDias += diasMes;
+        dma.qtdMeses--;
+    }
+
+    if (dma.qtdMeses < 0) {
+        dma.qtdMeses += 12;
+        dma.qtdAnos--;
+    }
+
+    dma.retorno = 1;
+    return dma;
 }
 
 /*
@@ -158,7 +222,21 @@ DiasMesesAnos q2(char datainicial[], char datafinal[])
  */
 int q3(char *texto, char c, int isCaseSensitive)
 {
-    int qtdOcorrencias = -1;
+    int i, qtdOcorrencias = 0;
+    char atual, procurado = c;
+
+    if (isCaseSensitive != 1 && procurado >= 'A' && procurado <= 'Z')
+        procurado = procurado + ('a' - 'A');
+
+    for (i = 0; texto[i] != '\0'; i++) {
+        atual = texto[i];
+
+        if (isCaseSensitive != 1 && atual >= 'A' && atual <= 'Z')
+            atual = atual + ('a' - 'A');
+
+        if (atual == procurado)
+            qtdOcorrencias++;
+    }
 
     return qtdOcorrencias;
 }
@@ -180,7 +258,30 @@ int q3(char *texto, char c, int isCaseSensitive)
  */
 int q4(char *strTexto, char *strBusca, int posicoes[30])
 {
-    int qtdOcorrencias = -1;
+    int i, j, tamanhoBusca = 0, qtdOcorrencias = 0, igual;
+
+    while (strBusca[tamanhoBusca] != '\0')
+        tamanhoBusca++;
+
+    if (tamanhoBusca == 0)
+        return 0;
+
+    for (i = 0; strTexto[i] != '\0'; i++) {
+        igual = 1;
+
+        for (j = 0; j < tamanhoBusca; j++) {
+            if (strTexto[i + j] == '\0' || strTexto[i + j] != strBusca[j]) {
+                igual = 0;
+                break;
+            }
+        }
+
+        if (igual == 1 && qtdOcorrencias < 15) {
+            posicoes[qtdOcorrencias * 2] = i + 1;
+            posicoes[qtdOcorrencias * 2 + 1] = i + tamanhoBusca;
+            qtdOcorrencias++;
+        }
+    }
 
     return qtdOcorrencias;
 }
@@ -197,8 +298,15 @@ int q4(char *strTexto, char *strBusca, int posicoes[30])
 
 int q5(int num)
 {
+    int invertido = 0, digito;
 
-    return num;
+    while (num != 0) {
+        digito = num % 10;
+        invertido = invertido * 10 + digito;
+        num = num / 10;
+    }
+
+    return invertido;
 }
 
 /*
@@ -213,7 +321,26 @@ int q5(int num)
 
 int q6(int numerobase, int numerobusca)
 {
-    int qtdOcorrencias;
+    int qtdOcorrencias = 0;
+    int divisor = 1, temp;
+
+    if (numerobase < 0)
+        numerobase = -numerobase;
+    if (numerobusca < 0)
+        numerobusca = -numerobusca;
+
+    temp = numerobusca;
+    while (temp >= 10) {
+        temp = temp / 10;
+        divisor = divisor * 10;
+    }
+
+    while (numerobase >= divisor) {
+        if (numerobase % (divisor * 10) == numerobusca)
+            qtdOcorrencias++;
+        numerobase = numerobase / 10;
+    }
+
     return qtdOcorrencias;
 }
 
@@ -228,10 +355,123 @@ int q6(int numerobase, int numerobusca)
  */
 
  int q7(char matriz[8][10], char palavra[5])
- {
-     int achou;
-     return achou;
- }
+{
+    int achou = 0, tam = 5;
+
+    for(int i = 0; i < 8; i++){
+        for(int j = 0; j < 10; j++){
+
+            if(matriz[i][j] == palavra[0]){
+
+                // Direita
+                if(j + tam < 10){
+                    achou = 1;
+                    for(int direita = 1; direita < tam; direita++){
+                        if(matriz[i][j + direita] != palavra[direita]){
+                            achou = 0;
+                            break;
+                        }
+                    }
+                    if(achou == 1)
+                        return 1;
+                }
+
+                // Esquerda
+                if(j - tam + 1 >= 0){
+                    achou = 1;
+                    for(int esquerda = 1; esquerda < tam; esquerda++){
+                        if(matriz[i][j - esquerda] != palavra[esquerda]){
+                            achou = 0;
+                            break;
+                        }
+                    }
+                    if(achou == 1)
+                        return 1;
+                }
+
+                // Baixo
+                if(i + tam < 8){
+                    achou = 1;
+                    for(int baixo = 1; baixo < tam; baixo++){
+                        if(matriz[i + baixo][j] != palavra[baixo]){
+                            achou = 0;
+                            break;
+                        }
+                    }
+                    if(achou == 1)
+                        return 1;
+                }
+
+                // Cima
+                if(i - tam + 1 >= 0){
+                    achou = 1;
+                    for(int cima = 1; cima < tam; cima++){
+                        if(matriz[i - cima][j] != palavra[cima]){
+                            achou = 0;
+                            break;
+                        }
+                    }
+                    if(achou == 1)
+                        return 1;
+                }
+
+                // Diagonal para baixo e direita
+                if(i + tam < 8 && j + tam < 10){
+                    achou = 1;
+                    for(int diagonal1 = 1; diagonal1 < tam; diagonal1++){
+                        if(matriz[i + diagonal1][j + diagonal1] != palavra[diagonal1]){
+                            achou = 0;
+                            break;
+                        }
+                    }
+                    if(achou == 1)
+                        return 1;
+                }
+
+                // Diagonal para baixo e esquerda
+                if(i + tam < 8 && j - tam + 1 >= 0){
+                    achou = 1;
+                    for(int diagonal2 = 1; diagonal2 < tam; diagonal2++){
+                        if(matriz[i + diagonal2][j - diagonal2] != palavra[diagonal2]){
+                            achou = 0;
+                            break;
+                        }
+                    }
+                    if(achou == 1)
+                        return 1;
+                }
+
+                // Diagonal para cima e direita
+                if(i - tam + 1 >= 0 && j + tam < 10){
+                    achou = 1;
+                    for(int diagonal3 = 1; diagonal3 < tam; diagonal3++){
+                        if(matriz[i - diagonal3][j + diagonal3] != palavra[diagonal3]){
+                            achou = 0;
+                            break;
+                        }
+                    }
+                    if(achou == 1)
+                        return 1;
+                }
+
+                // Diagonal para cima e esquerda
+                if(i - tam + 1 >= 0 && j - tam + 1 >= 0){
+                    achou = 1;
+                    for(int diagonal4 = 1; diagonal4 < tam; diagonal4++){
+                        if(matriz[i - diagonal4][j - diagonal4] != palavra[diagonal4]){
+                            achou = 0;
+                            break;
+                        }
+                    }
+                    if(achou == 1)
+                        return 1;
+                }
+            }
+        }
+    }
+
+    return 0;
+}
 
 
 

@@ -4,7 +4,7 @@
 
 #include "trabalho2.h"
 
-int vetorPrincipal[TAM];
+estrutura_principal vetorPrincipal[TAM];
 
 /*
 Objetivo: criar estrutura auxiliar na posição 'posicao'.
@@ -19,20 +19,38 @@ Rertono (int)
 */
 int criarEstruturaAuxiliar(int posicao, int tamanho)
 {
-
     int retorno = 0;
-    // a posicao pode já existir estrutura auxiliar
-    retorno = JA_TEM_ESTRUTURA_AUXILIAR;
-    // se posição é um valor válido {entre 1 e 10}
-    retorno = POSICAO_INVALIDA;
-    // o tamanho ser muito grande
-    retorno = SEM_ESPACO_DE_MEMORIA;
+
+    if(posicao < 1 || posicao > 10){
+      // se posição é um valor válido {entre 1 e 10}
+        retorno = POSICAO_INVALIDA;
+    }
+
+    else if(tamanho < 1){
     // o tamanho nao pode ser menor que 1
     retorno = TAMANHO_INVALIDO;
-    // deu tudo certo, crie
-    retorno = SUCESSO;
+    }
 
+    else if(vetorPrincipal[posicao - 1].vetor_secund != NULL){
+    // a posicao pode já existir estrutura auxiliar
+    retorno = JA_TEM_ESTRUTURA_AUXILIAR;
+    }
+
+    else{
+    // deu tudo certo, crie
+        
+        vetorPrincipal[posicao - 1].vetor_secund = malloc(tamanho * sizeof(int));
+            if(vetorPrincipal[posicao -1].vetor_secund != NULL){
+            vetorPrincipal[posicao - 1].capacidade = tamanho;
+            vetorPrincipal[posicao - 1].preenchido = 0;
+            retorno = SUCESSO;
+            }
+            else{
+            retorno = SEM_ESPACO_DE_MEMORIA;
+            }
+    }
     return retorno;
+    
 }
 
 /*
@@ -51,25 +69,33 @@ int inserirNumeroEmEstrutura(int posicao, int valor)
     int temEspaco = 0;
     int posicao_invalida = 0;
 
+    if ((posicao -1) <1 || (posicao - 1) > 10){
+        posicao_invalida = 1;
+    }
+
     if (posicao_invalida)
         retorno = POSICAO_INVALIDA;
     else
     {
-        // testar se existe a estrutura auxiliar
-        if (existeEstruturaAuxiliar)
-        {
-            if (temEspaco)
-            {
-                //insere
-                retorno = SUCESSO;
-            }
-            else
-            {
-                retorno = SEM_ESPACO;
-            }
+        if(vetorPrincipal[posicao -1].vetor_secund != NULL){ // testar se existe a estrutura auxiliar
+            existeEstruturaAuxiliar = 1;
+        } 
+        if (existeEstruturaAuxiliar){
+ 
+            if(vetorPrincipal[posicao - 1].preenchido <= vetorPrincipal[posicao - 1].capacidade){
+
+                temEspaco = 1;
+
+                 if (temEspaco){
+                     //insere
+                     retorno = SUCESSO;
+                 }
+                 else{
+                     retorno = SEM_ESPACO;
+                }
+            }    
         }
-        else
-        {
+        else{
             retorno = SEM_ESTRUTURA_AUXILIAR;
         }
     }
@@ -265,6 +291,14 @@ Objetivo: inicializa o programa. deve ser chamado ao inicio do programa
 
 void inicializar()
 {
+    for (int i = 0; i < TAM; i++)
+    {
+    vetorPrincipal[i].vetor_secund = NULL;
+    vetorPrincipal[i].capacidade = 0;
+    vetorPrincipal[i].preenchido = 0;
+    }
+
+    
 }
 
 /*

@@ -227,8 +227,9 @@ int getDadosEstruturaAuxiliar(int posicao, int vetorAux[])
     }
     else{
         for(int i = 0; i < vetorPrincipal[posicao - 1].preenchido; i++){
-            
+            vetorAux[i] = vetorPrincipal[posicao - 1].vetor_secund[i];
         }
+        retorno = SUCESSO;
     }
 
     return retorno;
@@ -247,8 +248,32 @@ int getDadosOrdenadosEstruturaAuxiliar(int posicao, int vetorAux[])
 {
 
     int retorno = 0;
+    int aux = 0;
 
-    
+    if (posicao < 1 || posicao > TAM){
+        retorno = POSICAO_INVALIDA;
+    }
+    else if(vetorPrincipal[posicao - 1].vetor_secund == NULL){
+        retorno = SEM_ESTRUTURA_AUXILIAR;
+    }
+    else{
+        for(int i = 0; i < vetorPrincipal[posicao - 1].preenchido; i++){
+            vetorAux[i] = vetorPrincipal[posicao - 1].vetor_secund[i];
+        }
+
+        for(int i = 0; i < vetorPrincipal[posicao - 1].preenchido; i ++){
+            for(int j = 0; j < vetorPrincipal[posicao - 1].preenchido - 1 - i; j++){
+                if(vetorAux[j] > vetorAux[j + 1]){
+                  aux = vetorAux[j];
+                  vetorAux[j] = vetorAux[j + 1];
+                  vetorAux[j + 1] = aux;  
+                }
+            }
+        }
+
+        retorno = SUCESSO;
+    }
+
     return retorno;
 }
 
@@ -264,6 +289,28 @@ int getDadosDeTodasEstruturasAuxiliares(int vetorAux[])
 {
 
     int retorno = 0;
+    int k = 0;
+    int achou = 0;
+
+    for(int i = 0; i < TAM; i++){
+
+        if (vetorPrincipal[i].vetor_secund != NULL){
+
+            for(int j = 0; j < vetorPrincipal[i].preenchido; j ++){
+                vetorAux[k] = vetorPrincipal[i].vetor_secund[j];
+                k++;
+                achou = 1;
+            }
+        }
+    }
+
+    retorno = SUCESSO;
+
+    if(achou == 0){
+        retorno = TODAS_ESTRUTURAS_AUXILIARES_VAZIAS;
+    }
+    
+
     return retorno;
 }
 
@@ -275,10 +322,41 @@ Rertono (int)
     SUCESSO - recuperado com sucesso os valores da estrutura na posição 'posicao'
     TODAS_ESTRUTURAS_AUXILIARES_VAZIAS - todas as estruturas auxiliares estão vazias
 */
-int getDadosOrdenadosDeTodasEstruturasAuxiliares(int vetorAux[])
-{
-
+int getDadosOrdenadosDeTodasEstruturasAuxiliares(int vetorAux[]){
     int retorno = 0;
+    int k = 0;
+    int achou = 0;
+    int aux;
+
+    for(int i = 0; i < TAM; i++){
+
+        if (vetorPrincipal[i].vetor_secund != NULL){
+
+            for(int j = 0; j < vetorPrincipal[i].preenchido; j ++){
+                vetorAux[k] = vetorPrincipal[i].vetor_secund[j];
+                k++;
+                achou = 1;
+            }
+        }
+    }
+
+    if(achou == 0){
+        retorno = TODAS_ESTRUTURAS_AUXILIARES_VAZIAS;
+    }
+    else{
+        for(int i = 0; i < k; i ++){
+                for(int j = 0; j < k - 1 - i; j++){
+                 if(vetorAux[j] > vetorAux[j + 1]){
+                    aux = vetorAux[j];
+                    vetorAux[j] = vetorAux[j + 1];
+                    vetorAux[j + 1] = aux;  
+                }
+            }
+        }
+
+    retorno = SUCESSO;
+
+    }
     return retorno;
 }
 

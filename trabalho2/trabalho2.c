@@ -217,8 +217,19 @@ Retorno (int)
 */
 int getDadosEstruturaAuxiliar(int posicao, int vetorAux[])
 {
-
     int retorno = 0;
+
+    if (posicao < 1 || posicao > TAM){
+        retorno = POSICAO_INVALIDA;
+    }
+    else if(vetorPrincipal[posicao - 1].vetor_secund == NULL){
+        retorno = SEM_ESTRUTURA_AUXILIAR;
+    }
+    else{
+        for(int i = 0; i < vetorPrincipal[posicao - 1].preenchido; i++){
+            
+        }
+    }
 
     return retorno;
 }

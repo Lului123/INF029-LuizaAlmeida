@@ -21,7 +21,7 @@ int criarEstruturaAuxiliar(int posicao, int tamanho)
 {
     int retorno = 0;
 
-    if(posicao < 1 || posicao > 10){
+    if(posicao < 1 || posicao > TAM){
       // se posição é um valor válido {entre 1 e 10}
         retorno = POSICAO_INVALIDA;
     }
@@ -69,7 +69,7 @@ int inserirNumeroEmEstrutura(int posicao, int valor)
     int temEspaco = 0;
     int posicao_invalida = 0;
 
-    if ((posicao -1) <1 || (posicao - 1) > 10){
+    if ((posicao) <1 || (posicao) > TAM){
         posicao_invalida = 1;
     }
 
@@ -82,18 +82,21 @@ int inserirNumeroEmEstrutura(int posicao, int valor)
         } 
         if (existeEstruturaAuxiliar){
  
-            if(vetorPrincipal[posicao - 1].preenchido <= vetorPrincipal[posicao - 1].capacidade){
+            if(vetorPrincipal[posicao - 1].preenchido < vetorPrincipal[posicao - 1].capacidade){
 
                 temEspaco = 1;
 
                  if (temEspaco){
                      //insere
+                     vetorPrincipal[posicao - 1].vetor_secund[vetorPrincipal[posicao - 1].preenchido] = valor;
+                     vetorPrincipal[posicao - 1].preenchido++;
                      retorno = SUCESSO;
                  }
-                 else{
-                     retorno = SEM_ESPACO;
-                }
-            }    
+
+            }
+            else{
+                 retorno = SEM_ESPACO;
+            }   
         }
         else{
             retorno = SEM_ESTRUTURA_AUXILIAR;
@@ -116,7 +119,23 @@ Rertono (int)
 */
 int excluirNumeroDoFinaldaEstrutura(int posicao)
 {
-    int retorno = SUCESSO;
+    int retorno = 0;
+
+    if (posicao < 1 || posicao > TAM){
+        retorno = POSICAO_INVALIDA;
+    }
+
+    else if(vetorPrincipal[posicao - 1].vetor_secund == NULL){
+        retorno = SEM_ESTRUTURA_AUXILIAR;  
+    }
+    else if(vetorPrincipal[posicao - 1].preenchido == 0){
+        retorno = ESTRUTURA_AUXILIAR_VAZIA;
+    }
+    else{
+        vetorPrincipal[posicao - 1].preenchido--;
+        retorno = SUCESSO;
+    }
+
     return retorno;
 }
 
@@ -135,7 +154,43 @@ Rertono (int)
 */
 int excluirNumeroEspecificoDeEstrutura(int posicao, int valor)
 {
-    int retorno = SUCESSO;
+     int retorno = 0;
+     int encontrado = 0;
+
+    if (posicao < 1 || posicao > TAM){
+        retorno = POSICAO_INVALIDA;
+    }
+
+    else if(vetorPrincipal[posicao - 1].vetor_secund == NULL){
+        retorno = SEM_ESTRUTURA_AUXILIAR;  
+    }
+    else if(vetorPrincipal[posicao - 1].preenchido == 0){
+        retorno = ESTRUTURA_AUXILIAR_VAZIA;
+    }
+    else{
+        for (int i = 0; i < vetorPrincipal[posicao - 1].preenchido; i++){
+
+            if(vetorPrincipal[posicao - 1].vetor_secund[i] == valor){
+
+                encontrado = 1;
+
+                for (int j = i; j < vetorPrincipal[posicao - 1].preenchido - 1; j++){
+                    vetorPrincipal[posicao - 1].vetor_secund[j] = vetorPrincipal[posicao - 1].vetor_secund[j + 1];
+                }
+            vetorPrincipal[posicao - 1].preenchido--;    
+
+            retorno = SUCESSO;
+            
+            break;
+            }
+
+        }  
+    if(encontrado == 0){
+        retorno = NUMERO_INEXISTENTE;
+    } 
+
+    }
+
     return retorno;
 }
 
@@ -143,8 +198,7 @@ int excluirNumeroEspecificoDeEstrutura(int posicao, int valor)
 int ehPosicaoValida(int posicao)
 {
     int retorno = 0;
-    if (posicao < 1 || posicao > 10)
-    {
+    if (posicao < 1 || posicao > TAM){
         retorno = POSICAO_INVALIDA;
     }
     else

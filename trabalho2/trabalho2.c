@@ -373,8 +373,47 @@ Rertono (int)
 */
 int modificarTamanhoEstruturaAuxiliar(int posicao, int novoTamanho)
 {
-
     int retorno = 0;
+    int tamanhoInicial = 0;
+    int *temp;
+
+
+    if(posicao < 1 || posicao > 10){
+        retorno = POSICAO_INVALIDA;
+    }
+
+    else{
+         tamanhoInicial = vetorPrincipal[posicao - 1].capacidade;
+    
+
+        if(novoTamanho <= (tamanhoInicial * (- 1))){
+            retorno = NOVO_TAMANHO_INVALIDO;
+        }
+        else if(vetorPrincipal[posicao - 1].vetor_secund == NULL){
+            retorno = SEM_ESTRUTURA_AUXILIAR;
+        }
+
+        else{
+            temp = realloc(vetorPrincipal[posicao - 1].vetor_secund, (tamanhoInicial + novoTamanho) * sizeof(int));
+
+            if(temp == NULL){
+                retorno = SEM_ESPACO_DE_MEMORIA;
+            }
+
+            else{
+                vetorPrincipal[posicao - 1].vetor_secund = temp;
+                vetorPrincipal[posicao - 1].capacidade = tamanhoInicial + novoTamanho;
+
+                if(vetorPrincipal[posicao - 1].preenchido > vetorPrincipal[posicao - 1].capacidade){
+                    vetorPrincipal[posicao - 1].preenchido = vetorPrincipal[posicao - 1].capacidade;
+                }
+            
+                retorno = SUCESSO;
+            }
+            
+        }
+    }
+
     return retorno;
 }
 
@@ -391,6 +430,21 @@ int getQuantidadeElementosEstruturaAuxiliar(int posicao)
 {
 
     int retorno = 0;
+    int preenchidos = 0;
+
+    if (posicao < 1 || posicao > TAM){
+        retorno = POSICAO_INVALIDA;
+    }
+    else if(vetorPrincipal[posicao - 1].vetor_secund == NULL){
+        retorno = SEM_ESTRUTURA_AUXILIAR;  
+    }
+    else if(vetorPrincipal[posicao - 1].preenchido == 0){
+        retorno = ESTRUTURA_AUXILIAR_VAZIA;
+    }
+    else{
+        preenchidos = vetorPrincipal[posicao - 1].preenchido;
+        retorno = preenchidos;
+    }
 
     return retorno;
 }
@@ -401,11 +455,58 @@ Objetivo: montar a lista encadeada com cabeçote com todos os números presentes
 Retorno (No*)
     NULL, caso não tenha nenhum número nas listas
     No*, ponteiro para o início da lista com cabeçote
+
+    /
+
+    typedef struct reg {
+    int conteudo;
+    struct reg *prox;
+    } No;
 */
 No *montarListaEncadeadaComCabecote()
 {
+int achou = 0;
+No *inicio = NULL;
+No *novo = NULL;
+No *atual = NULL;
 
+    for(int i = 0; i < TAM; i++){
+        if(vetorPrincipal[i].preenchido > 0){
+            achou = 1;
+        }
+    }
+    if(achou == 0){
     return NULL;
+    }
+    else{
+        inicio = malloc(sizeof(No));
+        if(inicio != NULL){
+
+            inicio->prox = NULL;
+            atual = inicio;
+
+            for(int i = 0; i < TAM; i++){
+                for(int j = 0; j < vetorPrincipal[i].preenchido; j++){
+                   novo = malloc(sizeof(No));
+                   if(novo != NULL){
+                        novo->conteudo = vetorPrincipal[i].vetor_secund[j];
+                        novo->prox = NULL;
+                        atual->prox = novo; 
+                        atual = novo;
+                   }
+                   else{
+                    destruirListaEncadeadaComCabecote(&inicio);
+                    return NULL;
+                    }
+                }
+            }
+
+            return inicio;
+        }
+        else{
+            return NULL;
+        }
+    }
 }
 
 /*
@@ -414,6 +515,15 @@ Retorno void
 */
 void getDadosListaEncadeadaComCabecote(No *inicio, int vetorAux[])
 {
+
+    No *atual = inicio->prox;
+    for(int i =0; atual != NULL; i++){
+        vetorAux[i] = atual->conteudo;
+        atual = atual->prox;
+    }
+    
+
+
 }
 
 /*
@@ -425,6 +535,20 @@ Retorno
 */
 void destruirListaEncadeadaComCabecote(No **inicio)
 {
+    No *atual;
+    No *proximo;
+
+    atual = *inicio;
+    proximo = atual->prox;
+
+    while (atual != NULL){
+        proximo = atual->prox;
+        free(atual);
+        atual = proximo;
+    }
+    
+    *inicio = NULL;
+
 }
 
 /*
